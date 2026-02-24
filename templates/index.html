@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIBanjir AI - Predictive System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg-color: #020617;
+        --card-bg: rgba(15, 23, 42, 0.6);
+        --accent-color: #06b6d4;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: rgba(56, 189, 248, 0.2);
+      }
+
+      body.theme-light {
+        --bg-color: #f1f5f9;
+        --card-bg: rgba(255, 255, 255, 0.8);
+        --accent-color: #2563eb;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border: rgba(37, 99, 235, 0.2);
+      }
+
+      body.theme-green {
+        --bg-color: #061a14;
+        --card-bg: rgba(6, 78, 59, 0.4);
+        --accent-color: #10b981;
+        --text-main: #ecfdf5;
+        --text-muted: #6ee7b7;
+        --border: rgba(16, 185, 129, 0.3);
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: "Plus Jakarta Sans", sans-serif;
+        transition: all 0.4s ease;
+        min-height: 100vh;
+      }
+
+      .glass-panel {
+        background: var(--card-bg);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+      }
+
+      .btn-primary {
+        background: var(--accent-color);
+      }
+      .text-accent {
+        color: var(--accent-color);
+      }
+
+      .theme-dock {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 50;
+        display: flex;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 8px;
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .theme-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: 0.3s;
+      }
+      .theme-btn.active {
+        border-color: white;
+      }
+
+      /* Style untuk Modal/Hasil pop-up */
+      #resultDisplay {
+        transition: all 0.5s ease;
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center p-4">
+    <div class="theme-dock">
+      <div onclick="setTheme('dark')" class="theme-btn active" style="background: #020617" title="Dark Mode"></div>
+      <div onclick="setTheme('light')" class="theme-btn" style="background: #ffffff" title="Light Mode"></div>
+      <div onclick="setTheme('green')" class="theme-btn" style="background: #10b981" title="Eco Green"></div>
+    </div>
+
+    <main class="w-full max-w-5xl">
+      <header class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[var(--accent-color)] bg-cyan-500/10 text-accent text-xs font-bold tracking-widest mb-6">
+          <i class="fa-solid fa-shield-halved animate-pulse"></i>
+          SYSTEM ENGINEERING v1.0
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">SIBANJIR <span class="text-accent">AI</span></h1>
+        <p class="text-[var(--text-muted)] text-lg max-w-2xl mx-auto leading-relaxed">Analisis risiko banjir presisi tinggi menggunakan Neural Network.</p>
+      </header>
+
+      <form id="predictionForm" class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="space-y-6">
+          <div class="group">
+            <label class="block text-xs font-bold text-[var(--text-muted)] mb-2 uppercase">🌧️ Curah Hujan (mm)</label>
+            <input type="number" name="curah_hujan" value="75" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xl focus:outline-none focus:border-[var(--accent-color)]" />
+          </div>
+          <div class="group">
+            <label class="block text-xs font-bold text-[var(--text-muted)] mb-2 uppercase">🏞️ Jarak Sungai (m)</label>
+            <input type="number" name="jarak_sungai" value="400" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xl focus:outline-none focus:border-[var(--accent-color)]" />
+          </div>
+          <div class="group">
+            <label class="block text-xs font-bold text-[var(--text-muted)] mb-2 uppercase">⛰️ Ketinggian/Elevasi (mdpl)</label>
+            <input type="number" name="ketinggian" value="20" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xl focus:outline-none focus:border-[var(--accent-color)]" />
+          </div>
+        </div>
+
+        <div class="space-y-8">
+          <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+            <label class="text-sm font-semibold block mb-2">🛠️ Kualitas Drainase (0-1)</label>
+            <input type="range" name="drainase" step="0.1" min="0" max="1" value="0.5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
+          </div>
+
+          <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+            <label class="text-sm font-semibold block mb-2">🏢 Kepadatan Bangunan (0-1)</label>
+            <input type="range" name="kepadatan" step="0.1" min="0" max="1" value="0.5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
+          </div>
+
+          <button type="button" onclick="sendData()" class="w-full py-5 btn-primary text-white font-black text-xl rounded-2xl shadow-xl transition-all hover:scale-[1.02] flex items-center justify-center gap-4">
+            <i class="fa-solid fa-bolt"></i> PROSES ANALISIS
+          </button>
+
+          <div id="resultDisplay" class="hidden p-6 rounded-2xl text-center font-bold text-xl border border-white/10"></div>
+        </div>
+      </form>
+    </main>
+
+    <script>
+      // Fungsi Ganti Tema
+      function setTheme(theme) {
+        document.body.classList.remove("theme-light", "theme-green");
+        document.querySelectorAll(".theme-btn").forEach((btn) => btn.classList.remove("active"));
+        if (theme !== "dark") document.body.classList.add("theme-" + theme);
+        event.currentTarget.classList.add("active");
+      }
+
+      // Fungsi Kirim ke Python (Flask)
+      function sendData() {
+        const form = document.getElementById("predictionForm");
+        const formData = new FormData(form);
+        const resultBox = document.getElementById("resultDisplay");
+
+        resultBox.classList.remove("hidden");
+        resultBox.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> MENGANALISIS...";
+        resultBox.style.backgroundColor = "rgba(255,255,255,0.1)";
+
+        fetch("/predict", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            let color = data.result === "AMAN" ? "#10b981" : data.result === "WASPADA" ? "#f59e0b" : "#ef4444";
+            let icon = data.result === "AMAN" ? "fa-circle-check" : data.result === "WASPADA" ? "fa-triangle-exclamation" : "fa-radiation";
+
+            // Template Hasil yang Detail
+            let htmlContent = `
+            <div class="text-left">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fa-solid ${icon} text-3xl" style="color: ${color}"></i>
+                    <h2 class="text-2xl font-black" style="color: ${color}">STATUS: ${data.result}</h2>
+                </div>
+                <p class="text-white/80 mb-4 italic border-l-4 border-[${color}] pl-3">${data.desc}</p>
+                <div class="bg-black/20 rounded-xl p-4">
+                    <p class="text-xs uppercase tracking-widest text-[var(--text-muted)] mb-3 font-bold">Rekomendasi Tindakan:</p>
+                    <ul class="space-y-2">
+                        ${data.action.map((task) => `<li class="text-sm flex gap-2"><i class="fa-solid fa-check text-[var(--accent-color)] mt-1"></i> ${task}</li>`).join("")}
+                    </ul>
+                </div>
+            </div>
+        `;
+
+            resultBox.innerHTML = htmlContent;
+            resultBox.style.backgroundColor = `${color}11`;
+            resultBox.style.borderColor = `${color}33`;
+          })
+          .catch((error) => {
+            alert("Gagal terhubung ke server Python!");
+          });
+      }
+    </script>
+  </body>
+</html>
